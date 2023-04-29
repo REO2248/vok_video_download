@@ -3,10 +3,15 @@ from bs4 import BeautifulSoup
 import ffmpeg
 import os
 os.makedirs("output", exist_ok=True)
+import sys
+args = sys.argv
 
-
-#여기에 영상 ID를 입력하십시오. (례: ije220917004)
 id = ""
+
+try:
+    id = args[1]
+except:
+    print("Error: No ID specified")
 
 
 url = f"http://www.vok.rep.kp/hls/player/{id}"
@@ -29,7 +34,10 @@ except:
 print("Video URL: {}".format(video))
 print("Downloading...")
 try:
-    ffmpeg.input(video).output("output/{}.mp4".format(id)).run()
+    stream = ffmpeg.input(video)
+    stream = ffmpeg.output(stream, "output/{}.mp4".format(id), map="0:p:2", format="mp4")
+    stream = ffmpeg.overwrite_output(stream)
+    ffmpeg.run(stream)
 except:
     import traceback
     traceback.print_exc()
